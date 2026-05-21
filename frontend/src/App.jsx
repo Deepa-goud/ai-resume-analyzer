@@ -196,7 +196,7 @@ export default function App() {
       const fd = new FormData();
       fd.append("resume", file);
       if (mode === "jd") fd.append("job_description", jd);
-      const res  = await fetch("http://127.0.0.1:5000/upload", { method: "POST", body: fd });
+      const res = await fetch("https://ai-resume-analyzer-bne9.onrender.com/upload", { method: "POST", body: fd });
       const text = await res.text();
       setData(parseResponse(text));
     } catch (e) {
