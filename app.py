@@ -112,7 +112,8 @@ Resume:
         return response.choices[0].message.content
 
     except Exception as e:
-        return str(e), 500
+       print(f"ERROR: {str(e)}")  # add this line
+       return str(e), 500
 
 
 if __name__ == '__main__':
