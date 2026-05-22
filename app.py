@@ -4,7 +4,7 @@ import PyPDF2
 from openai import OpenAI
 
 app = Flask(__name__)
-CORS(app, origins=["https://ai-resume-analyzer-kinyvr8j5-deepa-b-projects1.vercel.app"])
+CORS(app)
 
 # OpenRouter Client
 import os
