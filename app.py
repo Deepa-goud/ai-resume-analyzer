@@ -88,7 +88,7 @@ Resume:
 """
 
         response = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
+            model="deepseek/deepseek-r1:free",
             temperature=0.2,
             messages=[
                 {
