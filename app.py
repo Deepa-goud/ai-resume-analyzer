@@ -2,14 +2,14 @@ from flask_cors import CORS
 from flask import Flask, request
 import PyPDF2
 from openai import OpenAI
+import os
+from dotenv import load_dotenv
+import traceback
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
-
-# OpenRouter Client
-import os
-from dotenv import load_dotenv
-load_dotenv()
 
 client = OpenAI(
     api_key=os.environ.get("OPENROUTER_API_KEY"),
@@ -26,7 +26,6 @@ def upload_resume():
         file = request.files['resume']
         job_description = request.form.get('job_description', '').strip()
 
-        # Extract text from PDF
         pdf_reader = PyPDF2.PdfReader(file)
         text = ""
         for page in pdf_reader.pages:
@@ -34,7 +33,6 @@ def upload_resume():
             if extracted:
                 text += extracted
 
-        # Build prompt depending on whether JD is provided
         if job_description:
             jd_section = f"""
 Job Description:
@@ -44,7 +42,7 @@ Instructions:
 - ATS Score should reflect how well the resume matches THIS specific job description (0-100).
 - Missing Skills must be skills explicitly or implicitly required by the job description that are absent from the resume.
 - Best Roles must be based on the job description provided.
-- Be precise and consistent. Do not hallucinate skills or roles not relevant to the JD.
+- Be precise and consistent.
 """
         else:
             jd_section = """
@@ -55,53 +53,44 @@ Instructions:
 """
 
         prompt = f"""
-You are a strict, professional ATS (Applicant Tracking System) and resume expert.
-Analyze the resume below and return ONLY the following structured output. No extra commentary.
+You are a strict, professional ATS resume expert.
+Analyze the resume below and return ONLY this structured output. No extra commentary.
 
 {jd_section}
 
-Format EXACTLY like this (keep every point SHORT, max 10 words each):
+Format EXACTLY like this:
 
 ATS Score:
-[number only, e.g. 78]
+78
 
 Missing Skills:
 - Skill 1
 - Skill 2
-- Skill 3
 
 Improvements:
 - Point 1
 - Point 2
-- Point 3
 
 Strengths:
 - Point 1
 - Point 2
-- Point 3
 
 Weaknesses:
 - Point 1
 - Point 2
-- Point 3
 
 Best Roles:
 - Role 1
 - Role 2
-- Role 3
 
 Resume:
 {text}
 """
 
         response = client.chat.completions.create(
-            model="google/gemini-2.0-flash-001",  # Fixed model for consistency
-            temperature=0.2,                       # Low temp = consistent results
+            model="deepseek/deepseek-chat-v3-0324:free",
+            temperature=0.2,
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a strict ATS resume analyzer. Always return the exact format requested. Never add extra sections or commentary."
-                },
                 {
                     "role": "user",
                     "content": prompt
@@ -112,9 +101,9 @@ Resume:
         return response.choices[0].message.content
 
     except Exception as e:
-       print(f"ERROR: {str(e)}")  # add this line
-       return str(e), 500
-
+        error_details = traceback.format_exc()
+        print(f"FULL ERROR: {error_details}")
+        return f"Error: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
