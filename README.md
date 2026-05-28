@@ -2,7 +2,7 @@
 
 An AI-powered resume analysis tool that gives you instant ATS scores, skill gap analysis, and job-description matching — built with React + Flask + OpenRouter.
 
-> 🔗 **Live Demo:** `[Add your link after deploying]`
+> 🔗 **Live Demo:** [Click Here](https://ai-resume-analyzer-sand-six.vercel.app/)
 
 ---
 
